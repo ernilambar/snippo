@@ -19,6 +19,19 @@
     "url": "https://github.com/ernilambar/snippo/issues"
   },
   "browserslist": "> 2%, last 2 versions, not dead",
+  "packtor": {
+		"files": [
+			"**/*",
+			"!*.js",
+			"!*.json",
+			"!*.lock",
+			"!*.md",
+			"!*.xml",
+			"!*.yaml",
+			"!languages/**/*",
+			"!src/**/*"
+		]
+	},
   "dependencies": {
     "@wordpress/api-fetch": "^6.0.0",
     "@wordpress/element": "^6.0.0",
@@ -29,11 +42,19 @@
   "devDependencies": {
     "@wordpress/prettier-config": "^4.26.0",
     "@wordpress/scripts": "^30.19.0",
-    "prettier": "npm:wp-prettier@^3.0.3"
+    "easy-replace-in-files": "^1.0.3",
+    "packtor": "^1.0.2",
+    "prettier": "npm:wp-prettier@^3.0.3",
+    "rimraf": "^6.0.1"
   },
   "scripts": {
     "start": "wp-scripts start src/snippets/index.js --output-path=build",
     "build": "wp-scripts build src/snippets/index.js --output-path=build",
-    "format": "prettier \"**/*.{css,js,json}\" --write"
+    "format": "prettier \"**/*.{css,js,json}\" --write",
+    "version": "easy-replace-in-files",
+    "vendor": "composer install --no-dev --no-scripts -o",
+    "ready": "pnpm run vendor && pnpm run build",
+    "predeploy": "rimraf build deploy vendor && pnpm run ready",
+    "deploy": "packtor"
   }
 }
