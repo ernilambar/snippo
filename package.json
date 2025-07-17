@@ -1,0 +1,39 @@
+{
+  "name": "snippo",
+  "version": "1.0.0",
+  "title": "Snippo",
+  "description": "Snippet manager.",
+  "author": "Nilambar Sharma",
+  "license": "GPL-2.0-or-later",
+  "main_file": "snippo.php",
+  "keywords": [
+    "wordpress",
+    "wordpress-plugin"
+  ],
+  "homepage": "https://github.com/ernilambar/snippo",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ernilambar/snippo.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ernilambar/snippo/issues"
+  },
+  "browserslist": "> 2%, last 2 versions, not dead",
+  "dependencies": {
+    "@wordpress/api-fetch": "^6.0.0",
+    "@wordpress/element": "^6.0.0",
+    "@wordpress/i18n": "^5.0.0",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0"
+  },
+  "devDependencies": {
+    "@wordpress/prettier-config": "^4.26.0",
+    "@wordpress/scripts": "^30.19.0",
+    "prettier": "npm:wp-prettier@^3.0.3"
+  },
+  "scripts": {
+    "start": "wp-scripts start src/snippets/index.js --output-path=build",
+    "build": "wp-scripts build src/snippets/index.js --output-path=build",
+    "format": "prettier \"**/*.{css,js,json}\" --write"
+  }
+}

@@ -1,0 +1,10 @@
+title: Hello There
+fields:
+  name:
+    label: Name
+    type: text
+    required: true
+template: |
+  Hello there, <b>{{name}}</b>.
+  <br>
+  Have a great day!
