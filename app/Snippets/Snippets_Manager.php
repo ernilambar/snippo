@@ -55,17 +55,15 @@ class Snippets_Manager {
 	 * @SuppressWarnings(PHPMD.NPathComplexity)
 	 */
 	private function load_snippets_from_directory(): void {
-		$snippet_directories = [ SNIPPO_DIR . '/snippets/' ];
-
 		/**
 		 * Filter the list of directories to scan for snippets.
 		 *
 		 * @param array $snippet_directories Array of absolute directory paths.
 		 */
-		$snippet_directories = apply_filters( 'snippo_snippet_directories', $snippet_directories );
+		$snippet_directories = apply_filters( 'snippo_snippet_directories', [] );
 
 		if ( ! is_array( $snippet_directories ) || empty( $snippet_directories ) ) {
-			return;
+			$snippet_directories = [ SNIPPO_DIR . '/snippets/' ];
 		}
 
 		foreach ( $snippet_directories as $snippets_dir ) {
