@@ -1,57 +1,6 @@
-.snippetsapp-form {
-	margin-top: 1em;
-	max-width: 800px;
-}
+@import "~/node_modules/snippo-ui/dist/snippo-ui.css";
 
-.snippetsapp-field {
-	margin-bottom: 0.5em;
-}
-
-.snippetsapp-label {
-	display: block;
-	font-weight: bold;
-}
-
-.snippetsapp-input {
-	width: 100%;
-	margin-top: 5px;
-}
-
+.snippetsapp-form,
 .snippetsapp-output-container {
-	margin-top: 1em;
 	max-width: 800px;
-}
-
-.snippetsapp-form-buttons {
-	margin-top: 10px;
-}
-
-.snippetsapp-output-content {
-	position: relative;
-}
-
-.snippetsapp-output-text {
-	border: 1px solid #ccc;
-	padding: 1em;
-	background: #fafafa;
-	border-radius: 4px;
-	min-height: 60px;
-	margin-bottom: 0.5em;
-	word-break: break-all;
-}
-
-.snippetsapp-copy-button {
-	position: absolute;
-	top: 0;
-	right: 0;
-}
-
-.snippetsapp-error-message {
-	color: red;
-	margin-top: 1em;
-}
-
-.snippo-select input,
-.snippo-select input:focus {
-	box-shadow: none;
 }

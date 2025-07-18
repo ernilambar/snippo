@@ -76,9 +76,8 @@ class Snippets_Page {
 			'snippo-snippets-app',
 			'SnippoObj',
 			[
-				'restUrl'       => 'snippo/v1/snippets',
-				'restUrlRender' => 'snippo/v1/snippets/render',
-				'nonce'         => wp_create_nonce( 'wp_rest' ),
+				'restUrl' => rest_url( 'snippo/v1/snippets' ),
+				'nonce'   => wp_create_nonce( 'wp_rest' ),
 			]
 		);
 	}
