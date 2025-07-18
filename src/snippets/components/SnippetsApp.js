@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import apiFetch from "@wordpress/api-fetch";
 import "../snippets.css";
+import Select from "react-select";
 
 const SnippetsApp = () => {
 	const [snippets, setSnippets] = useState({});
@@ -79,51 +80,61 @@ const SnippetsApp = () => {
 			(form[field.name] && form[field.name].toString().trim() !== ""),
 	);
 
+	// Prepare options for react-select
+	const snippetOptions = Object.keys(snippets).map((key) => ({
+		value: key,
+		label:
+			snippets[key].meta && snippets[key].meta.title
+				? snippets[key].meta.title
+				: key,
+	}));
+
 	return (
 		<div>
-			<select
-				value={selected}
-				onChange={(e) => setSelected(e.target.value)}
-			>
-				<option value="">Select a snippet</option>
-				{Object.keys(snippets).map((key) => {
-					const snippet = snippets[key];
-					const title =
-						snippet.meta && snippet.meta.title
-							? snippet.meta.title
-							: key;
-					return (
-						<option key={key} value={key}>
-							{title}
-						</option>
-					);
-				})}
-			</select>
+			<Select
+				options={snippetOptions}
+				className="snippo-select"
+				value={
+					snippetOptions.find(
+						(option) => option.value === selected,
+					) || null
+				}
+				onChange={(option) => setSelected(option ? option.value : "")}
+				placeholder="Select a snippet"
+				isClearable
+				styles={{ container: (base) => ({ ...base, maxWidth: 400 }) }}
+			/>
 			{fields.length > 0 && (
 				<form onSubmit={handleSubmit} className="snippetsapp-form">
 					{fields.map((field) => (
 						<div key={field.name} className="snippetsapp-field">
-							<label className="snippetsapp-label">
+							<label
+								htmlFor={`snippetsapp-field-${field.name}`}
+								className="snippetsapp-label"
+							>
 								{field.label || field.name}
 							</label>
 							<input
+								id={`snippetsapp-field-${field.name}`}
 								type="text"
 								value={form[field.name] || ""}
 								onChange={(e) =>
 									handleChange(field.name, e.target.value)
 								}
 								required={field.required}
-								className="snippetsapp-input"
+								className="snippetsapp-input regular-text"
 							/>
 						</div>
 					))}
-					<button
-						type="submit"
-						className="button button-primary snippetsapp-submit-button"
-						disabled={!allRequiredFilled}
-					>
-						Generate
-					</button>
+					<div className="snippetsapp-form-buttons">
+						<button
+							type="submit"
+							className="button button-primary snippetsapp-submit-button"
+							disabled={!allRequiredFilled}
+						>
+							Generate
+						</button>
+					</div>
 				</form>
 			)}
 			{output && (
@@ -138,7 +149,7 @@ const SnippetsApp = () => {
 							onClick={handleCopy}
 							className="snippetsapp-copy-button"
 						>
-							{copied ? "Copied!" : "Copy Snippet"}
+							{copied ? "Copied!" : "Copy"}
 						</button>
 					</div>
 				</div>

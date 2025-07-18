@@ -20,24 +20,25 @@
   },
   "browserslist": "> 2%, last 2 versions, not dead",
   "packtor": {
-		"files": [
-			"**/*",
-			"!*.js",
-			"!*.json",
-			"!*.lock",
-			"!*.md",
-			"!*.xml",
-			"!*.yaml",
-			"!languages/**/*",
-			"!src/**/*"
-		]
-	},
+    "files": [
+      "**/*",
+      "!*.js",
+      "!*.json",
+      "!*.lock",
+      "!*.md",
+      "!*.xml",
+      "!*.yaml",
+      "!languages/**/*",
+      "!src/**/*"
+    ]
+  },
   "dependencies": {
     "@wordpress/api-fetch": "^6.0.0",
     "@wordpress/element": "^6.0.0",
     "@wordpress/i18n": "^5.0.0",
     "react": "^18.0.0",
-    "react-dom": "^18.0.0"
+    "react-dom": "^18.0.0",
+    "react-select": "^5.10.2"
   },
   "devDependencies": {
     "@wordpress/prettier-config": "^4.26.0",

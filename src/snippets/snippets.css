@@ -1,5 +1,6 @@
 .snippetsapp-form {
 	margin-top: 1em;
+	max-width: 800px;
 }
 
 .snippetsapp-field {
@@ -13,10 +14,16 @@
 
 .snippetsapp-input {
 	width: 100%;
+	margin-top: 5px;
 }
 
 .snippetsapp-output-container {
 	margin-top: 1em;
+	max-width: 800px;
+}
+
+.snippetsapp-form-buttons {
+	margin-top: 10px;
 }
 
 .snippetsapp-output-content {
@@ -42,4 +49,9 @@
 .snippetsapp-error-message {
 	color: red;
 	margin-top: 1em;
+}
+
+.snippo-select input,
+.snippo-select input:focus {
+	box-shadow: none;
 }
