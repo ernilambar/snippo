@@ -60,7 +60,7 @@ class Snippets_Manager {
 		 *
 		 * @param array $snippet_directories Array of absolute directory paths.
 		 */
-		$snippet_directories = apply_filters( 'snippo_snippet_directories', [] );
+		$snippet_directories = apply_filters( 'snippo_directories', [] );
 
 		if ( ! is_array( $snippet_directories ) || empty( $snippet_directories ) ) {
 			$snippet_directories = [ SNIPPO_DIR . '/snippets/' ];
@@ -89,31 +89,47 @@ class Snippets_Manager {
 					} catch ( \Exception $e ) {
 						$meta = [];
 					}
-					// Normalize fields to always be an array of field definitions.
-					$fields = [];
+					// Always expect fields as an array of field definitions.
+					$fields      = [];
+					$field_names = [];
 					if ( ! empty( $meta['fields'] ) && is_array( $meta['fields'] ) ) {
-						// If associative (object-style), convert to array of definitions.
-						$is_assoc = array_keys( $meta['fields'] ) !== range( 0, count( $meta['fields'] ) - 1 );
-						if ( $is_assoc ) {
-							foreach ( $meta['fields'] as $name => $def ) {
-								if ( is_array( $def ) ) {
-									$fields[] = array_merge( [ 'name' => $name ], $def );
-								} else {
-									$fields[] = [
-										'name'  => $name,
-										'label' => $def,
-									];
+						foreach ( $meta['fields'] as $field ) {
+							if ( is_array( $field ) && isset( $field['name'] ) ) {
+								$field_name = $field['name'];
+								if ( in_array( $field_name, $field_names, true ) ) {
+									// Skip duplicate field names.
+									continue;
 								}
+								$field_names[] = $field_name;
+
+								// Generate label from name if not provided.
+								if ( ! isset( $field['label'] ) ) {
+									$field['label'] = $this->generate_title_from_slug( $field_name );
+								}
+
+								$fields[] = $field;
 							}
-						} else {
-							$fields = $meta['fields'];
 						}
 					}
+
+					// Always expect categories as an array.
+					$categories = [];
+
+					if ( ! empty( $meta['categories'] ) && is_array( $meta['categories'] ) ) {
+						foreach ( $meta['categories'] as $category ) {
+							$slug = is_string( $category ) ? $category : ( $category['slug'] ?? '' );
+							if ( ! empty( $slug ) ) {
+								$categories[] = [ 'slug' => $slug ];
+							}
+						}
+					}
+
 					$this->snippets[ $slug ] = [
-						'key'      => $slug,
-						'fields'   => $fields,
-						'template' => $meta['template'] ?? '',
-						'meta'     => $meta,
+						'key'        => $slug,
+						'fields'     => $fields,
+						'template'   => $meta['template'] ?? '',
+						'categories' => $categories,
+						'meta'       => $meta,
 					];
 				}
 			}
@@ -142,6 +158,141 @@ class Snippets_Manager {
 	 */
 	public function get_fields( string $key ): ?array {
 		return isset( $this->snippets[ $key ] ) ? $this->snippets[ $key ]['fields'] : null;
+	}
+
+	/**
+	 * Generate readable title from slug.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $slug The slug to convert.
+	 *
+	 * @return string Readable title.
+	 */
+	private function generate_title_from_slug( string $slug ): string {
+		return ucwords( str_replace( [ '-', '_' ], ' ', $slug ) );
+	}
+
+	/**
+	 * Get snippet categories by key.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $key Snippet key.
+	 *
+	 * @return array List of category data or empty array if not found.
+	 */
+	public function get_snippet_categories( string $key ): array {
+		return isset( $this->snippets[ $key ] ) ? $this->snippets[ $key ]['categories'] : [];
+	}
+
+	/**
+	 * Get all available categories.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return array<string, array> List of categories with their snippets.
+	 */
+	public function get_categories(): array {
+		$categories = [];
+
+		$category_definitions = $this->get_all_category_definitions();
+
+		foreach ( $this->snippets as $key => $snippet ) {
+			if ( ! empty( $snippet['categories'] ) && is_array( $snippet['categories'] ) ) {
+				foreach ( $snippet['categories'] as $category ) {
+					if ( is_array( $category ) && isset( $category['slug'] ) ) {
+						$category_slug = $category['slug'];
+						$definition    = $category_definitions[ $category_slug ] ?? [];
+
+						if ( ! isset( $categories[ $category_slug ] ) ) {
+							$categories[ $category_slug ] = array_merge(
+								[
+									'title'    => $this->generate_title_from_slug( $category_slug ),
+									'color'    => 'gray',
+									'snippets' => [],
+								],
+								$definition
+							);
+						}
+
+						$categories[ $category_slug ]['snippets'][ $key ] = $snippet;
+					}
+				}
+			}
+		}
+
+		return $categories;
+	}
+
+	/**
+	 * Get snippets by category slug.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $category_slug Category slug.
+	 *
+	 * @return array<string, array> List of snippets in the category.
+	 */
+	public function get_snippets_by_category( string $category_slug ): array {
+		$categories = $this->get_categories();
+		return isset( $categories[ $category_slug ] ) ? $categories[ $category_slug ]['snippets'] : [];
+	}
+
+	/**
+	 * Check if a snippet belongs to a specific category.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $snippet_key Snippet key.
+	 * @param string $category_slug Category slug.
+	 *
+	 * @return bool True if snippet belongs to the category.
+	 */
+	public function snippet_has_category( string $snippet_key, string $category_slug ): bool {
+		if ( ! isset( $this->snippets[ $snippet_key ] ) ) {
+			return false;
+		}
+
+		$snippet_categories = $this->snippets[ $snippet_key ]['categories'];
+		foreach ( $snippet_categories as $category ) {
+			if ( isset( $category['slug'] ) && $category['slug'] === $category_slug ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Get all category definitions from plugins.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return array<string, array> List of all category definitions.
+	 */
+	public function get_all_category_definitions(): array {
+		/**
+		 * Filter to allow plugins to register categories.
+		 *
+		 * @param array $categories Array of category definitions.
+		 */
+		return apply_filters( 'snippo_categories', [] );
+	}
+
+	/**
+	 * Get a specific category definition.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $slug Category slug.
+	 *
+	 * @return array|null Category definition or null if not found.
+	 */
+	public function get_category_definition( string $slug ): ?array {
+		$all_definitions = $this->get_all_category_definitions();
+
+		return $all_definitions[ $slug ] ?? null;
 	}
 
 	/**

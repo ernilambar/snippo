@@ -1,6 +1,8 @@
 title: Hello There
+categories:
+  - beginner
 fields:
-  name:
+  - name: name
     label: Name
     type: text
     required: true
