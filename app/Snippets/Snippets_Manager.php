@@ -117,9 +117,9 @@ class Snippets_Manager {
 
 					if ( ! empty( $meta['categories'] ) && is_array( $meta['categories'] ) ) {
 						foreach ( $meta['categories'] as $category ) {
-							$slug = is_string( $category ) ? $category : ( $category['slug'] ?? '' );
-							if ( ! empty( $slug ) ) {
-								$categories[] = [ 'slug' => $slug ];
+							$category_slug = is_string( $category ) ? $category : ( $category['slug'] ?? '' );
+							if ( ! empty( $category_slug ) ) {
+								$categories[] = [ 'slug' => $category_slug ];
 							}
 						}
 					}

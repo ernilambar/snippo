@@ -5,7 +5,6 @@ fields:
   - name: name
     label: Name
     type: text
-    required: true
 template: |
   Hello there, <b>{{name}}</b>.
   <br>
