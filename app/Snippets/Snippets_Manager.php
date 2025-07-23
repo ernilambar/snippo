@@ -119,7 +119,10 @@ class Snippets_Manager {
 						foreach ( $meta['categories'] as $category ) {
 							$category_slug = is_string( $category ) ? $category : ( $category['slug'] ?? '' );
 							if ( ! empty( $category_slug ) ) {
-								$categories[] = [ 'slug' => $category_slug ];
+								$categories[] = [
+									'slug'  => $category_slug,
+									'title' => $this->generate_title_from_slug( $category_slug ),
+								];
 							}
 						}
 					}
