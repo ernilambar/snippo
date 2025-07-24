@@ -128,8 +128,6 @@ class Snippets_Manager {
 
 								if ( $category_definition && isset( $category_definition['color'] ) ) {
 									$new_cat_item['color'] = $category_definition['color'];
-								} else {
-									$new_cat_item['color'] = 'gray';
 								}
 
 								$categories[] = $new_cat_item;
@@ -222,7 +220,6 @@ class Snippets_Manager {
 							$categories[ $category_slug ] = array_merge(
 								[
 									'title'    => $this->generate_title_from_slug( $category_slug ),
-									'color'    => 'gray',
 									'snippets' => [],
 								],
 								$definition
