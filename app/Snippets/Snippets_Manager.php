@@ -119,10 +119,20 @@ class Snippets_Manager {
 						foreach ( $meta['categories'] as $category ) {
 							$category_slug = is_string( $category ) ? $category : ( $category['slug'] ?? '' );
 							if ( ! empty( $category_slug ) ) {
-								$categories[] = [
+								$new_cat_item = [
 									'slug'  => $category_slug,
 									'title' => $this->generate_title_from_slug( $category_slug ),
 								];
+
+								$category_definition = $this->get_category_definition( $category_slug );
+
+								if ( $category_definition && isset( $category_definition['color'] ) ) {
+									$new_cat_item['color'] = $category_definition['color'];
+								} else {
+									$new_cat_item['color'] = 'gray';
+								}
+
+								$categories[] = $new_cat_item;
 							}
 						}
 					}
