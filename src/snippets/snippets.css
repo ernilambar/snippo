@@ -4,3 +4,7 @@
 .snippetsapp-output-container {
 	max-width: 800px;
 }
+
+.snippetsapp-output-text {
+	line-height: 1.8;
+}
