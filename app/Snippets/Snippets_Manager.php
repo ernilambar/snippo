@@ -135,16 +135,41 @@ class Snippets_Manager {
 						}
 					}
 
-					$this->snippets[ $slug ] = [
+					$snippet_data = [
 						'key'        => $slug,
 						'fields'     => $fields,
 						'template'   => $meta['template'] ?? '',
 						'categories' => $categories,
 						'meta'       => $meta,
 					];
+
+					/**
+					 * Filter to customize parsed snippet.
+					 *
+					 * @since 1.0.0
+					 *
+					 * @param array  $snippet_data The parsed snippet data.
+					 * @param string $slug         The snippet slug.
+					 * @param array  $meta         The original YAML meta data.
+					 * @param string $path         The file path of the snippet.
+					 */
+					$snippet_data = apply_filters( 'snippo_snippet', $snippet_data, $slug, $meta, $path );
+
+					$this->snippets[ $slug ] = $snippet_data;
 				}
 			}
 		}
+
+		/**
+		 * Filter to customize all parsed snippets.
+		 *
+		 * @since 1.0.0
+		 *
+		 * This filter runs after all individual snippets have been processed.
+		 *
+		 * @param array $snippets All parsed snippets indexed by slug.
+		 */
+		$this->snippets = apply_filters( 'snippo_snippets', $this->snippets );
 	}
 
 	/**
