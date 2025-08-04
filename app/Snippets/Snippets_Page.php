@@ -7,6 +7,8 @@
 
 namespace Nilambar\Snippo\Snippets;
 
+use Nilambar\Snippo\View\View;
+
 /**
  * Snippets_Page class.
  *
@@ -30,17 +32,49 @@ class Snippets_Page {
 	 * @since 1.0.0
 	 */
 	public function add_page() {
-		add_dashboard_page(
+		// Check if dashmate parent page exists.
+		$dashmate_exists = $this->check_parent_page_exists( 'dashmate' );
+
+		// Determine parent slug based on dashmate existence.
+		$parent_slug = $dashmate_exists ? 'dashmate' : 'index.php';
+
+		// Add as submenu under the determined parent.
+		add_submenu_page(
+			$parent_slug,
 			esc_html__( 'Snippets', 'snippo' ),
 			esc_html__( 'Snippets', 'snippo' ),
 			'manage_options',
 			'snippo-snippets',
 			function () {
-				echo '<div class="wrap"><h1>' . esc_html__( 'Snippets', 'snippo' ) . '</h1>';
-				echo '<div id="snippo-snippets-app"></div>';
-				echo '</div>';
+				View::render( 'app' );
 			}
 		);
+	}
+
+	/**
+	 * Check if parent page exists.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $parent_slug Parent page slug.
+	 * @return bool True if parent page exists, false otherwise.
+	 */
+	private function check_parent_page_exists( $parent_slug ) {
+		global $menu, $submenu;
+
+		// Check if parent page exists in menu.
+		foreach ( $menu as $menu_item ) {
+			if ( isset( $menu_item[2] ) && $parent_slug === $menu_item[2] ) {
+				return true;
+			}
+		}
+
+		// Check if parent page exists in submenu.
+		if ( isset( $submenu[ $parent_slug ] ) ) {
+			return true;
+		}
+
+		return false;
 	}
 
 	/**
@@ -51,7 +85,9 @@ class Snippets_Page {
 	 * @param string $hook Hook name.
 	 */
 	public function load_react_assets( $hook ) {
-		if ( 'dashboard_page_snippo-snippets' !== $hook ) {
+		$allowed_hooks = [ 'dashmate_page_snippo-snippets', 'dashboard_page_snippo-snippets' ];
+
+		if ( ! in_array( $hook, $allowed_hooks, true ) ) {
 			return;
 		}
 
