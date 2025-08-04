@@ -8,3 +8,7 @@
 .snippetsapp-output-text {
 	line-height: 1.8;
 }
+
+.snippetsapp-output-text code {
+	background: transparent;
+}
