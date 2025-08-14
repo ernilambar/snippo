@@ -35,8 +35,8 @@ class Snippets_API {
 			'rest_pre_serve_request',
 			function ( $served, $result, $request, $server ) {
 				if ( strpos( $request->get_route(), '/snippo/v1/' ) === 0 ) {
-					if ( isset( $_SERVER['HTTP_ORIGIN'] ) && strpos( $_SERVER['HTTP_ORIGIN'], 'chrome-extension://' ) === 0 ) {
-						header( 'Access-Control-Allow-Origin: ' . $_SERVER['HTTP_ORIGIN'] );
+					if ( isset( $_SERVER['HTTP_ORIGIN'] ) && strpos( sanitize_text_field( wp_unslash( $_SERVER['HTTP_ORIGIN'] ) ), 'chrome-extension://' ) === 0 ) {
+						header( 'Access-Control-Allow-Origin: ' . sanitize_text_field( wp_unslash( $_SERVER['HTTP_ORIGIN'] ) ) );
 						header( 'Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE' );
 						header( 'Access-Control-Allow-Headers: Content-Type, Authorization' );
 					}
