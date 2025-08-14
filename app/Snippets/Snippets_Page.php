@@ -7,8 +7,6 @@
 
 namespace Nilambar\Snippo\Snippets;
 
-use Nilambar\Snippo\View\View;
-
 /**
  * Snippets_Page class.
  *
@@ -45,10 +43,22 @@ class Snippets_Page {
 			esc_html__( 'Snippets', 'snippo' ),
 			'manage_options',
 			'snippo-snippets',
-			function () {
-				View::render( 'app' );
-			}
+			[ $this,'render_page' ]
 		);
+	}
+
+	/**
+	 * Render page.
+	 *
+	 * @since 1.0.0
+	 */
+	public function render_page() {
+		?>
+		<div class="wrap">
+			<h1><?php echo esc_html( get_admin_page_title() ); ?></h1>
+			<div id="snippo-snippets-app"><?php esc_html_e( 'Loading&hellip;', 'snippo' ); ?></div>
+		</div>
+		<?php
 	}
 
 	/**
