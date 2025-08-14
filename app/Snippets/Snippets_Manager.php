@@ -18,6 +18,7 @@ use Symfony\Component\Yaml\Yaml;
  * @since 1.0.0
  */
 class Snippets_Manager {
+
 	/**
 	 * Registered snippets.
 	 *
