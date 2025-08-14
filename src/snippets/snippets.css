@@ -1,14 +1,13 @@
 @import "~/node_modules/snippo-ui/dist/snippo-ui.css";
 
-.snippetsapp-form,
-.snippetsapp-output-container {
+.snippet-form {
+	max-width: 400px;
+}
+
+.snippet-output-container {
 	max-width: 800px;
 }
 
-.snippetsapp-output-text {
+.snippet-output-text {
 	line-height: 1.8;
-}
-
-.snippetsapp-output-text code {
-	background: transparent;
 }

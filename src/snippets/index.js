@@ -9,7 +9,10 @@ document.addEventListener("DOMContentLoaded", () => {
 	if (root) {
 		const api = createWordpressApi(SnippoObj.restUrl, SnippoObj.nonce);
 		createRoot(root).render(
-			<SnippetsApp api={api} options={{ autoCopy: true }} />,
+			<SnippetsApp
+				api={api}
+				options={{ layout: "sidebar", autoCopy: true }}
+			/>,
 		);
 	}
 });
