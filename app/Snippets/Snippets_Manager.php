@@ -10,7 +10,6 @@ declare(strict_types=1);
 namespace Nilambar\Snippo\Snippets;
 
 use Exception;
-use Symfony\Component\Yaml\Yaml;
 
 /**
  * Class Snippets_Manager.
@@ -18,6 +17,7 @@ use Symfony\Component\Yaml\Yaml;
  * @since 1.0.0
  */
 class Snippets_Manager {
+
 	/**
 	 * Registered snippets.
 	 *
@@ -82,10 +82,10 @@ class Snippets_Manager {
 				}
 
 				$path = $snippets_dir . $file;
-				if ( is_file( $path ) && preg_match( '/^(.*)\.yml$/', $file, $matches ) ) {
+				if ( is_file( $path ) && preg_match( '/^(.*)\.php$/', $file, $matches ) ) {
 					$slug = $matches[1];
 					try {
-						$meta = Yaml::parseFile( $path );
+						$meta = $this->load_php_config( $path );
 					} catch ( \Exception $e ) {
 						$meta = [];
 					}
@@ -150,7 +150,7 @@ class Snippets_Manager {
 					 *
 					 * @param array  $snippet_data The parsed snippet data.
 					 * @param string $slug         The snippet slug.
-					 * @param array  $meta         The original YAML meta data.
+					 * @param array  $meta         The original PHP meta data.
 					 * @param string $path         The file path of the snippet.
 					 */
 					$snippet_data = apply_filters( 'snippo_snippet', $snippet_data, $slug, $meta, $path );
@@ -163,13 +163,34 @@ class Snippets_Manager {
 		/**
 		 * Filter to customize all parsed snippets.
 		 *
-		 * @since 1.0.0
-		 *
 		 * This filter runs after all individual snippets have been processed.
 		 *
 		 * @param array $snippets All parsed snippets indexed by slug.
 		 */
 		$this->snippets = apply_filters( 'snippo_snippets', $this->snippets );
+	}
+
+	/**
+	 * Load PHP configuration file.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $file_path Path to the PHP configuration file.
+	 * @return array Configuration data.
+	 * @throws Exception If file cannot be loaded or does not return an array.
+	 */
+	private function load_php_config( string $file_path ): array {
+		if ( ! file_exists( $file_path ) ) {
+			throw new Exception( 'Configuration file not found: ' . esc_html( $file_path ) );
+		}
+
+		$config = include $file_path;
+
+		if ( ! is_array( $config ) ) {
+			throw new Exception( 'Configuration file must return an array: ' . esc_html( $file_path ) );
+		}
+
+		return $config;
 	}
 
 	/**
