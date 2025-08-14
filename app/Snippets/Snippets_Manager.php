@@ -9,7 +9,7 @@ declare(strict_types=1);
 
 namespace Nilambar\Snippo\Snippets;
 
-use Exception;
+use WP_Error;
 
 /**
  * Class Snippets_Manager.
@@ -84,10 +84,13 @@ class Snippets_Manager {
 				$path = $snippets_dir . $file;
 				if ( is_file( $path ) && preg_match( '/^(.*)\.php$/', $file, $matches ) ) {
 					$slug = $matches[1];
-					try {
-						$meta = $this->load_php_config( $path );
-					} catch ( \Exception $e ) {
+
+					$meta_result = $this->load_php_config( $path );
+
+					if ( is_wp_error( $meta_result ) ) {
 						$meta = [];
+					} else {
+						$meta = $meta_result;
 					}
 
 					// Process fields and categories using Snippet_Processor.
@@ -136,20 +139,19 @@ class Snippets_Manager {
 		$this->snippets = apply_filters( 'snippo_snippets', $this->snippets );
 	}
 
-		/**
-		 * Load PHP configuration file.
-		 *
-		 * @since 1.0.0
-		 *
-		 * @param string $file_path Path to the PHP configuration file.
-		 * @return array Configuration data.
-		 * @throws Exception If file cannot be loaded or does not return an array.
-		 */
-	private function load_php_config( string $file_path ): array {
+	/**
+	 * Load PHP configuration file.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $file_path Path to the PHP configuration file.
+	 * @return array|WP_Error Configuration data or WP_Error on failure.
+	 */
+	private function load_php_config( string $file_path ) {
 		$validation = Snippet_Validator::validate_php_config_file( $file_path );
 
 		if ( ! $validation['valid'] ) {
-			throw new Exception( 'Configuration file validation failed: ' . esc_html( implode( ', ', $validation['errors'] ) ) );
+			return new WP_Error( 'config_validation_failed', 'Configuration file validation failed: ' . esc_html( implode( ', ', $validation['errors'] ) ) );
 		}
 
 		return include $file_path;
@@ -310,23 +312,22 @@ class Snippets_Manager {
 	 * @param string $key  Snippet key.
 	 * @param array  $data Data to replace in the snippet.
 	 *
-	 * @return string Rendered snippet content.
-	 *
-	 * @throws Exception If snippet type or template is not found.
+	 * @return string|WP_Error Rendered snippet content or WP_Error on failure.
 	 */
-	public function render_snippet( string $key, array $data ): string {
+	public function render_snippet( string $key, array $data ) {
 		if ( empty( $this->snippets[ $key ] ) ) {
-			throw new Exception( 'Snippet type not found.' );
+			return new WP_Error( 'snippet_not_found', 'Snippet type not found.' );
 		}
 
 		$template = $this->snippets[ $key ]['template'] ?? '';
 
 		if ( empty( $template ) ) {
-			throw new Exception( 'Snippet template not found.' );
+			return new WP_Error( 'template_not_found', 'Snippet template not found.' );
 		}
 
 		// Replace placeholders.
 		$content = $template;
+
 		foreach ( $data as $field => $value ) {
 			$content = str_replace( '{{' . $field . '}}', esc_html( $value ), $content );
 		}
