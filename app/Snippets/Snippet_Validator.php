@@ -190,24 +190,20 @@ class Snippet_Validator {
 			];
 		}
 
-		try {
-			$config = include $file_path;
+		$config = include $file_path;
 
-			if ( ! is_array( $config ) ) {
-				$errors[] = 'Configuration file must return an array: ' . esc_html( $file_path );
-				return [
-					'valid'  => false,
-					'errors' => $errors,
-				];
-			}
+		if ( ! is_array( $config ) ) {
+			$errors[] = 'Configuration file must return an array: ' . esc_html( $file_path );
+			return [
+				'valid'  => false,
+				'errors' => $errors,
+			];
+		}
 
-			// Validate the configuration structure.
-			$config_validation = self::validate_snippet_config( $config );
-			if ( ! $config_validation['valid'] ) {
-				$errors = array_merge( $errors, $config_validation['errors'] );
-			}
-		} catch ( \Exception $e ) {
-			$errors[] = 'Error loading configuration file: ' . esc_html( $e->getMessage() );
+		// Validate the configuration structure.
+		$config_validation = self::validate_snippet_config( $config );
+		if ( ! $config_validation['valid'] ) {
+			$errors = array_merge( $errors, $config_validation['errors'] );
 		}
 
 		return [

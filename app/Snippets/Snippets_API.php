@@ -71,12 +71,14 @@ class Snippets_API {
 					$params = $request->get_json_params();
 					$key    = sanitize_text_field( $params['key'] ?? '' );
 					$data   = $params['data'] ?? [];
-					try {
-						$output = Snippets_Manager::get_instance()->render_snippet( $key, $data );
-						return [ 'output' => $output ];
-					} catch ( \Exception $e ) {
-						return new \WP_Error( 'snippet_render_error', $e->getMessage(), [ 'status' => 400 ] );
+
+					$output = Snippets_Manager::get_instance()->render_snippet( $key, $data );
+
+					if ( is_wp_error( $output ) ) {
+						return $output;
 					}
+
+					return [ 'output' => $output ];
 				},
 			]
 		);
