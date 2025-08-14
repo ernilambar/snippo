@@ -89,50 +89,16 @@ class Snippets_Manager {
 					} catch ( \Exception $e ) {
 						$meta = [];
 					}
-					// Always expect fields as an array of field definitions.
-					$fields      = [];
-					$field_names = [];
-					if ( ! empty( $meta['fields'] ) && is_array( $meta['fields'] ) ) {
-						foreach ( $meta['fields'] as $field ) {
-							if ( is_array( $field ) && isset( $field['name'] ) ) {
-								$field_name = $field['name'];
-								if ( in_array( $field_name, $field_names, true ) ) {
-									// Skip duplicate field names.
-									continue;
-								}
-								$field_names[] = $field_name;
 
-								// Generate label from name if not provided.
-								if ( ! isset( $field['label'] ) ) {
-									$field['label'] = $this->generate_title_from_slug( $field_name );
-								}
-
-								$fields[] = $field;
-							}
-						}
-					}
-
-					// Always expect categories as an array.
+					// Process fields and categories using Snippet_Processor.
+					$fields     = [];
 					$categories = [];
-
+					if ( ! empty( $meta['fields'] ) && is_array( $meta['fields'] ) ) {
+						$fields = Snippet_Processor::process_fields( $meta['fields'] );
+					}
 					if ( ! empty( $meta['categories'] ) && is_array( $meta['categories'] ) ) {
-						foreach ( $meta['categories'] as $category ) {
-							$category_slug = is_string( $category ) ? $category : ( $category['slug'] ?? '' );
-							if ( ! empty( $category_slug ) ) {
-								$new_cat_item = [
-									'slug'  => $category_slug,
-									'title' => $this->generate_title_from_slug( $category_slug ),
-								];
-
-								$category_definition = $this->get_category_definition( $category_slug );
-
-								if ( $category_definition && isset( $category_definition['color'] ) ) {
-									$new_cat_item['color'] = $category_definition['color'];
-								}
-
-								$categories[] = $new_cat_item;
-							}
-						}
+						$category_definitions = $this->get_all_category_definitions();
+						$categories           = Snippet_Processor::process_categories( $meta['categories'], $category_definitions );
 					}
 
 					$snippet_data = [
@@ -170,27 +136,23 @@ class Snippets_Manager {
 		$this->snippets = apply_filters( 'snippo_snippets', $this->snippets );
 	}
 
-	/**
-	 * Load PHP configuration file.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param string $file_path Path to the PHP configuration file.
-	 * @return array Configuration data.
-	 * @throws Exception If file cannot be loaded or does not return an array.
-	 */
+		/**
+		 * Load PHP configuration file.
+		 *
+		 * @since 1.0.0
+		 *
+		 * @param string $file_path Path to the PHP configuration file.
+		 * @return array Configuration data.
+		 * @throws Exception If file cannot be loaded or does not return an array.
+		 */
 	private function load_php_config( string $file_path ): array {
-		if ( ! file_exists( $file_path ) ) {
-			throw new Exception( 'Configuration file not found: ' . esc_html( $file_path ) );
+		$validation = Snippet_Validator::validate_php_config_file( $file_path );
+
+		if ( ! $validation['valid'] ) {
+			throw new Exception( 'Configuration file validation failed: ' . esc_html( implode( ', ', $validation['errors'] ) ) );
 		}
 
-		$config = include $file_path;
-
-		if ( ! is_array( $config ) ) {
-			throw new Exception( 'Configuration file must return an array: ' . esc_html( $file_path ) );
-		}
-
-		return $config;
+		return include $file_path;
 	}
 
 	/**
@@ -217,18 +179,7 @@ class Snippets_Manager {
 		return isset( $this->snippets[ $key ] ) ? $this->snippets[ $key ]['fields'] : null;
 	}
 
-	/**
-	 * Generate readable title from slug.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param string $slug The slug to convert.
-	 *
-	 * @return string Readable title.
-	 */
-	private function generate_title_from_slug( string $slug ): string {
-		return ucwords( str_replace( [ '-', '_' ], ' ', $slug ) );
-	}
+
 
 	/**
 	 * Get snippet categories by key.
@@ -265,7 +216,7 @@ class Snippets_Manager {
 						if ( ! isset( $categories[ $category_slug ] ) ) {
 							$categories[ $category_slug ] = array_merge(
 								[
-									'title'    => $this->generate_title_from_slug( $category_slug ),
+									'title'    => Snippet_Utils::generate_title_from_slug( $category_slug ),
 									'snippets' => [],
 								],
 								$definition
