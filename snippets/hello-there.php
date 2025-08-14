@@ -1,6 +1,6 @@
 <?php
 /**
- * Hello There Snippet Configuration
+ * Snippet: Hello There
  *
  * @package Snippo
  */
@@ -17,5 +17,7 @@ return [
 			'type'  => 'text',
 		],
 	],
-	'template'   => "Hello there, <b>{{name}}</b>.\n<br>\nHave a great day!",
+	'template'   => 'Hello there, <b>{{name}}</b>.
+<br>
+Have a great day!',
 ];

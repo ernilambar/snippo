@@ -1,6 +1,6 @@
 <?php
 /**
- * First Snippet Configuration
+ * Snippet: First Snippet
  *
  * @package Snippo
  */
