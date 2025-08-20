@@ -14,7 +14,7 @@
  * @package Snippo
  */
 
-use Nilambar\Snippo\Boot\Loader;
+use Nilambar\Snippo\Core\Bootstrap;
 
 // Define.
 define( 'SNIPPO_VERSION', '1.0.0' );
@@ -30,4 +30,4 @@ if ( file_exists( SNIPPO_DIR . '/vendor/autoload.php' ) ) {
 }
 
 // Init.
-new Loader();
+new Bootstrap();
