@@ -2,7 +2,7 @@
   "name": "snippo",
   "version": "1.0.0",
   "title": "Snippo",
-  "description": "Snippet manager.",
+  "description": "Snippets manager.",
   "author": "Nilambar Sharma",
   "license": "GPL-2.0-or-later",
   "main_file": "snippo.php",
