@@ -53,6 +53,7 @@ class Snippets_Manager {
 	 * @since 1.0.0
 	 *
 	 * @SuppressWarnings(PHPMD.NPathComplexity)
+	 * @SuppressWarnings(PHPMD.UnusedPrivateMethod)
 	 */
 	private function load_snippets_from_directory(): void {
 		/**

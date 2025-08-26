@@ -1,6 +1,6 @@
 {
   "name": "ernilambar/snippo",
-  "description": "Snippet manager.",
+  "description": "Snippets manager.",
   "license": "GPL-2.0-or-later",
   "require": {
     "php": ">=7.4"
@@ -12,7 +12,7 @@
     "phpcompatibility/php-compatibility": "dev-develop#9013cd039fe5740953f9fdeebd19d901b80e26f2",
     "phpmd/phpmd": "^2.15",
     "slevomat/coding-standard": "^8",
-    "wp-coding-standards/wpcs": "*"
+    "wp-coding-standards/wpcs": "^3.2"
   },
   "minimum-stability": "dev",
   "prefer-stable": true,
