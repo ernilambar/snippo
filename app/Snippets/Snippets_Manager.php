@@ -105,10 +105,23 @@ class Snippets_Manager {
 						$categories           = Snippet_Processor::process_categories( $meta['categories'], $category_definitions );
 					}
 
+					// Handle template_path if provided.
+					$template_content = '';
+					if ( ! empty( $meta['template_path'] ) ) {
+						$template_result = $this->load_template_from_path( $meta['template_path'] );
+						if ( is_wp_error( $template_result ) ) {
+							// Skip this snippet if template file cannot be loaded.
+							continue;
+						}
+						$template_content = $template_result;
+					} elseif ( ! empty( $meta['template'] ) ) {
+						$template_content = $meta['template'];
+					}
+
 					$snippet_data = [
 						'key'        => $slug,
 						'fields'     => $fields,
-						'template'   => $meta['template'] ?? '',
+						'template'   => $template_content,
 						'categories' => $categories,
 						'meta'       => $meta,
 					];
@@ -156,6 +169,30 @@ class Snippets_Manager {
 		}
 
 		return include $file_path;
+	}
+
+	/**
+	 * Load template content from file path.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $template_path Absolute path to the template HTML file.
+	 * @return string|WP_Error Template content or WP_Error on failure.
+	 */
+	private function load_template_from_path( string $template_path ) {
+		$normalized_path = wp_normalize_path( $template_path );
+
+		if ( ! file_exists( $normalized_path ) ) {
+			return new WP_Error( 'template_file_not_found', 'Template file not found: ' . esc_html( $normalized_path ) );
+		}
+
+		$content = file_get_contents( $normalized_path );
+
+		if ( false === $content ) {
+			return new WP_Error( 'template_file_read_error', 'Failed to read template file: ' . esc_html( $normalized_path ) );
+		}
+
+		return $content;
 	}
 
 	/**
