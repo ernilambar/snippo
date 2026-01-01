@@ -32,8 +32,24 @@ class Snippet_Validator {
 			$errors[] = 'Title is required.';
 		}
 
-		if ( empty( $config['template'] ) ) {
-			$errors[] = 'Template is required.';
+		// Validate template and template_path.
+		$has_template      = ! empty( $config['template'] );
+		$has_template_path = ! empty( $config['template_path'] );
+
+		if ( ! $has_template && ! $has_template_path ) {
+			$errors[] = 'Either template or template_path is required.';
+		}
+
+		if ( $has_template && $has_template_path ) {
+			$errors[] = 'Cannot provide both template and template_path. Use only one.';
+		}
+
+		// Validate template_path if provided.
+		if ( $has_template_path ) {
+			$template_path_validation = self::validate_template_path( $config['template_path'] );
+			if ( ! $template_path_validation['valid'] ) {
+				$errors = array_merge( $errors, $template_path_validation['errors'] );
+			}
 		}
 
 		// Validate categories.
@@ -169,6 +185,74 @@ class Snippet_Validator {
 		];
 
 		return in_array( $type, $valid_types, true );
+	}
+
+	/**
+	 * Validate template path.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $template_path Template file path.
+	 * @return array Validation result.
+	 */
+	public static function validate_template_path( string $template_path ): array {
+		$errors = [];
+
+		if ( empty( $template_path ) ) {
+			$errors[] = 'Template path cannot be empty.';
+			return [
+				'valid'  => false,
+				'errors' => $errors,
+			];
+		}
+
+		// Validate absolute path.
+		$normalized_path = wp_normalize_path( $template_path );
+		if ( ! self::is_absolute_path( $normalized_path ) ) {
+			$errors[] = 'Template path must be an absolute path.';
+		}
+
+		// Validate .html extension.
+		$extension = strtolower( pathinfo( $normalized_path, PATHINFO_EXTENSION ) );
+		if ( 'html' !== $extension ) {
+			$errors[] = 'Template path must have .html extension.';
+		}
+
+		// Validate file exists.
+		if ( ! file_exists( $normalized_path ) ) {
+			$errors[] = 'Template file not found: ' . esc_html( $normalized_path );
+		}
+
+		return [
+			'valid'  => empty( $errors ),
+			'errors' => $errors,
+		];
+	}
+
+	/**
+	 * Check if path is absolute.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $path File path.
+	 * @return bool True if absolute, false otherwise.
+	 */
+	private static function is_absolute_path( string $path ): bool {
+		if ( empty( $path ) ) {
+			return false;
+		}
+
+		// Check for Unix absolute path (starts with /).
+		if ( '/' === $path[0] ) {
+			return true;
+		}
+
+		// Check for Windows absolute path (starts with drive letter like C:\).
+		if ( preg_match( '/^[A-Za-z]:[\/\\\\]/', $path ) ) {
+			return true;
+		}
+
+		return false;
 	}
 
 	/**
